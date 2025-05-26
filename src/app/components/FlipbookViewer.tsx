@@ -115,6 +115,7 @@ export default function FlipbookViewer({ s3Path }: ViewerProps) {
               maxShadowOpacity={0.4}
               showCover={true}
               className="shadow-xl"
+              mobileScrollSupport={true}
               onFlip={(e: any) => setCurrent(e.data)}
             >
               {Array.from({ length: numPages }, (_, i) => (
