@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-flipfolioapp-dev-3f39f-authRole",
+      "UnauthRoleArn": "arn:aws:iam::120211009944:role/amplify-flipfolioapp-dev-3f39f-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::120211009944:role/amplify-flipfolioapp-dev-3f39f-authRole",
+      "Region": "us-west-2",
+      "DeploymentBucketName": "amplify-flipfolioapp-dev-3f39f-deployment",
+      "UnauthRoleName": "amplify-flipfolioapp-dev-3f39f-unauthRole",
+      "StackName": "amplify-flipfolioapp-dev-3f39f",
+      "StackId": "arn:aws:cloudformation:us-west-2:120211009944:stack/amplify-flipfolioapp-dev-3f39f/697110d0-39a5-11f0-bfb8-06df751d3187",
+      "AmplifyAppId": "dlcw0wviymm9u"
+    },
+    "categories": {
+      "auth": {
+        "flipfolioapp8031d351": {}
+      },
+      "storage": {
+        "s3foliostorage": {}
+      }
+    }
+  }
+}

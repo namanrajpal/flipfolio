@@ -1,0 +1,16 @@
+{
+  "resourceName": "s3foliostorage",
+  "policyUUID": "59950564",
+  "bucketName": "filfoliofoliobucket",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "CREATE_AND_UPDATE",
+    "READ"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}
