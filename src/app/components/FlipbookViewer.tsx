@@ -54,6 +54,7 @@ interface ViewerProps {
 export default function FlipbookViewer({ s3Path }: ViewerProps) {
   ensureAmplifyConfigured();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [progress, setProgress]   = useState<number | null>(null);
   const [numPages, setNumPages] = useState(0);
   const [pageDims, setDims] = useState({ w: 600, h: 800 });
   const [current, setCurrent] = useState(0);
@@ -93,14 +94,30 @@ export default function FlipbookViewer({ s3Path }: ViewerProps) {
 
   return (
     <div className="w-full flex flex-col items-center">
+      {/* ① progress overlay */}
+      {progress !== null && (
+        <div className="flex flex-col items-center gap-4 py-20 w-full">
+          <div className="w-56 h-2.5 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-600 transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="text-sm text-gray-500">{progress}%</p>
+        </div>
+      )}
       <Document
         file={pdfUrl}
-        loading={<p className="py-20">Loading…</p>}
+        loading={null}                                  /* we’ll render our own */
+        onLoadProgress={({ loaded, total }) => {
+          if (total) setProgress(Math.round((loaded / total) * 100));
+        }}
         onLoadSuccess={async (doc) => {
           setNumPages(doc.numPages);
           const page = await doc.getPage(1);
           const [, , w, h] = page.view;
           calcDims(w, h);
+          setProgress(null); 
         }}
       >
         {numPages > 0 && (
