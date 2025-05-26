@@ -1,41 +1,53 @@
 // src/app/page.tsx
-'use client'; // This page uses client-side hooks (useRouter)
+'use client';
 
-import Head from 'next/head'; // Next.js Head component for meta tags
-import { useRouter } from 'next/navigation'; // App Router hook for navigation
-import FileUpload from './components/FileUpload'; // Adjust path if your component folder is different
+import Image from 'next/image';
+import FileUpload from './components/FileUpload';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function HomePage() {
+export default function Home() {
+  const [dragOver, setDragOver] = useState(false);
   const router = useRouter();
 
   const handleUploadSuccess = ({ slug }: { slug: string }) => {
-    router.push(`/folio/${slug}`);      // clean URL
+    router.push(`/folio/${slug}`);
   };
 
   return (
-    <>
-      <Head>
-        <title>Flipfolio - Create Your PDF Flipbook</title>
-        <meta name="description" content="Upload your PDF and share it as an interactive flipbook." />
-        <link rel="icon" href="/favicon.ico" /> {/* Ensure you have a favicon.ico in your /public folder */}
-      </Head>
+    <main className="min-h-screen flex flex-col items-center justify-center bg-white overflow-hidden p-6 text-center">
+      {/* logo + tagline */}
+      <header className="mb-12 space-y-4 animate-fade-in">
+        <div className="mx-auto relative h-24 w-24 sm:h-32 sm:w-32 rounded-2xl overflow-hidden shadow-xl ring-1 ring-gray-200">
+          <Image
+            src="/flipfoliobrand.png"
+            alt="FlipFolio logo"
+            fill
+            sizes="(min-width: 640px) 128px, 96px"
+            className="object-cover"
+            priority
+          />
+        </div>
+        <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight">
+          Welcome to FlipFolio!
+        </h1>
+        <p className="max-w-xl text-gray-600 mx-auto">
+          Upload your multi‑page PDF and we’ll transform it into a stunning, shareable flipbook.
+        </p>
+      </header>
 
-      <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 80px)', padding: '20px' }}> {/* Basic styling */}
-        <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '2.5rem', color: '#333' }}>Welcome to Flipfolio!</h1>
-          <p style={{ fontSize: '1.1rem', color: '#555' }}>
-            Upload your multi-page PDF and we'll transform it into a stunning, shareable flipbook.
-          </p>
-        </header>
-        
-        <FileUpload onUploadSuccess={handleUploadSuccess} />
+      {/* upload card */}
+          <FileUpload onUploadSuccess={handleUploadSuccess} />
 
-        <footer style={{ marginTop: '50px', paddingTop: '20px', borderTop: '1px solid #eee', textAlign: 'center', width: '100%', maxWidth: '600px' }}>
-          <p style={{ fontSize: '0.9rem', color: '#777' }}>
-            Copyright © {new Date().getFullYear()} Flipfolio. All rights reserved.
-          </p>
-        </footer>
-      </main>
-    </>
+      <footer className="mt-20 text-xs text-gray-400">© 2025 FlipFolio. All rights reserved.</footer>
+    </main>
   );
 }
+
+/* we keep fade-in keyframe for header ------------------------------------------------
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fade-in 0.6s ease-out both; }
+----------------------------------------------------------------- */

@@ -18,6 +18,7 @@ export default function RootLayout({
   // The console logs you previously added here were showing server-side resolved config.
   return (
     <html lang="en">
+      <link rel="icon" href="/flipfolio-icon.png" sizes="240x240" />
       <body>
         <AmplifyProvider>{children}</AmplifyProvider>
       </body>
