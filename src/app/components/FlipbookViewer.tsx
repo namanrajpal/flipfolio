@@ -57,7 +57,7 @@ export default function FlipbookViewer({ s3Path }: ViewerProps) {
   const [numPages, setNumPages] = useState(0);
   const [pageDims, setDims] = useState({ w: 600, h: 800 });
   const [current, setCurrent] = useState(0);
-  const flipRef = useRef<unknown>(null); // PageFlip instance
+  const flipRef = useRef<{ pageFlip: () => { flipNext: () => void; flipPrev: () => void } } | null>(null); // PageFlip instance
 
   /* signed URL */
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function FlipbookViewer({ s3Path }: ViewerProps) {
               maxShadowOpacity={0.4}
               showCover={true}
               className="shadow-xl"
-              onFlip={(e: unknown) => setCurrent(e.data)}
+              onFlip={(e: any) => setCurrent(e.data)}
             >
               {Array.from({ length: numPages }, (_, i) => (
                 <FlipPage key={i} num={i + 1} width={pageDims.w} />
