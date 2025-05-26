@@ -95,8 +95,18 @@ export default function FolioPage() {
 
   const [current, setCurrent] = useState(0);
   const [numPages, setNumPages] = useState(0);
-  const flipNext = () => {/* logic to flip to the next page */};
-  const flipPrev = () => {/* logic to flip to the previous page */};
+  const flipNext = () => {
+    if (current < numPages - 1) {
+      setCurrent(current + 1);
+    }
+  };
+  
+  const flipPrev = () => {
+    if (current > 0) {
+      setCurrent(current - 1);
+    }
+  };
+
   const zoom = (factor: number) => {/* logic to zoom in or out */};
 
   if (!slug) {

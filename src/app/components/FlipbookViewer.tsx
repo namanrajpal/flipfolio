@@ -53,7 +53,14 @@ export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, 
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [progress, setProgress]   = useState<number | null>(null);
   const [pageDims, setDims] = useState({ w: 600, h: 800 });
-  const flipRef = useRef<{ pageFlip: () => { flipNext: () => void; flipPrev: () => void } } | null>(null); // PageFlip instance
+  const flipRef = useRef<{
+    pageFlip: () => {
+      flipNext: () => void;
+      flipPrev: () => void;
+      flip: (page: number) => void;
+      getCurrentPageIndex: () => number;
+    };
+  } | null>(null); // PageFlip instance
 
   /* signed URL */
   useEffect(() => {
@@ -73,14 +80,15 @@ export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, 
   
     setDims({ w: sheetW, h: sheetH });
   }, []);
-  
 
-  /* controls */
-  const flipNext = () => flipRef.current?.pageFlip().flipNext();
-  const flipPrev = () => flipRef.current?.pageFlip().flipPrev();
-
-  const zoom = (factor: number) =>
-    setDims((d) => ({ w: d.w * factor, h: d.h * factor }));
+  useEffect(() => {
+    if (flipRef.current?.pageFlip()) {
+      const currentPage = flipRef.current.pageFlip().getCurrentPageIndex();
+      if (currentPage !== current) {
+        flipRef.current.pageFlip().flip(current);
+      }
+    }
+  }, [current]);
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -123,6 +131,7 @@ export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, 
             className="shadow-xl"
             mobileScrollSupport={true}
             onFlip={(e: any) => setCurrent(e.data)}
+            startPage={current}
           >
             {Array.from({ length: numPages }, (_, i) => (
               <FlipPage key={i} num={i + 1} width={pageDims.w} />
