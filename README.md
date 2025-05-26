@@ -1,3 +1,121 @@
+## FlipFolio
+
+FlipFolio is a web application that transforms PDF documents into interactive, visually stunning digital flipbooks that can be shared via unique URLs. Built with modern web technologies, FlipFolio offers an elegant user experience for both uploading PDFs and viewing the resulting flipbooks.
+
+## Overview
+
+FlipFolio simplifies the process of converting static PDF documents into engaging, interactive flipbooks. Users can upload their PDFs through a simple drag-and-drop interface, and the application automatically transforms them into flipbooks with realistic page-turning animations, zoom functionality, and easy sharing options.
+
+The application utilizes AWS Amplify for backend services, including authentication and S3 storage for the PDF files. The frontend is built with Next.js and styled with Tailwind CSS for a responsive and modern UI.
+
+## Features
+
+### PDF Upload
+- Simple drag-and-drop interface for uploading PDF files
+- Progress indication during upload
+- Automatic processing of uploaded PDFs
+
+### Flipbook Viewer
+- Realistic page-turning animations powered by react-pageflip
+- Responsive design that adapts to different screen sizes
+- Navigation controls (previous/next page)
+- Page counter showing current position and total pages
+- Zoom in/out functionality for detailed viewing
+- One-click sharing with automatic URL copying
+- Loading progress indicator
+
+### Sharing & Access
+- Unique URL generation for each uploaded flipbook
+- No authentication required to view shared flipbooks
+- Clean, presentation-friendly viewing interface
+
+## Architecture
+
+### Frontend
+- **Framework**: Next.js (React)
+- **Styling**: Tailwind CSS
+- **PDF Handling**: react-pdf for rendering PDF pages
+- **Flipbook Effect**: react-pageflip for page turning animations
+- **Icons**: Heroicons
+
+### Backend
+- **Cloud Services**: AWS Amplify
+- **Authentication**: AWS Cognito
+- **Storage**: AWS S3 for storing and serving PDF files
+- **URL Generation**: Dynamic routing with Next.js
+
+### Key Components
+
+#### Home Page (`src/app/page.tsx`)
+The landing page with the file upload interface.
+
+#### FlipbookViewer (`src/app/components/FlipbookViewer.tsx`)
+The core component that renders the interactive flipbook, handling:
+- PDF loading and rendering
+- Page turning animations
+- Zoom controls
+- Sharing functionality
+
+#### Folio Page (`src/app/folio/[slug]/page.tsx`)
+The public-facing page that displays a specific flipbook identified by its slug.
+
+#### FileUpload Component
+Handles the file upload process, including:
+- Drag and drop functionality
+- File validation
+- Upload progress tracking
+- S3 storage integration
+
+#### AmplifyClientProvider (`src/app/components/AmplifyClientProvider.tsx`)
+Manages the AWS Amplify configuration and provides it to the rest of the application.
+
+## Testing
+
+### Manual Testing
+Test the following functionality manually:
+1. PDF upload via drag-and-drop
+2. Flipbook rendering and page turning
+3. Navigation controls (prev/next)
+4. Zoom in/out functionality
+5. Sharing via URL copying
+6. Responsive behavior across different device sizes
+
+### End-to-End Testing (Future Implementation)
+Consider implementing Cypress or Playwright tests for:
+- Upload flow
+- Flipbook navigation
+- Sharing functionality
+
+### Performance Testing
+Monitor and optimize:
+- PDF loading times
+- Page turning animation smoothness
+- Initial load performance
+
+## Getting Started
+
+To run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+
+## Deployment
+
+The application is designed to be deployed on Vercel, which provides optimal support for Next.js applications. Follow the deployment instructions in the Next.js documentation for more details.
+
+## License
+
+© 2025 FlipFolio. All rights reserved.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

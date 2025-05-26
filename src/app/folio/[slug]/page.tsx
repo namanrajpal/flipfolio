@@ -5,6 +5,7 @@ import Head from 'next/head';
 import FlipbookViewer from '../../components/FlipbookViewer';
 import { ShareIcon, CheckIcon } from '@heroicons/react/24/solid';
 import React, { useState } from 'react';
+import { ChevronLeftIcon, ChevronRightIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/solid';
 
 function slugToTitle(slug: string): string {
   // 1. drop the nano-id suffix (-g2neek, _k9p3x7 …)
@@ -19,6 +20,53 @@ function slugToTitle(slug: string): string {
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
 }
+
+interface ToolbarProps {
+  current: number;
+  numPages: number;
+  flipNext: () => void;
+  flipPrev: () => void;
+  zoom: (factor: number) => void;
+}
+
+const Toolbar: React.FC<ToolbarProps> = ({ current, numPages, flipNext, flipPrev, zoom }) => (
+  <div className="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md shadow-md flex justify-center py-2">
+    <div className="flex items-center gap-3">
+      <button
+        className="p-1 rounded hover:bg-gray-100 disabled:opacity-40"
+        onClick={flipPrev}
+        disabled={current === 0}
+      >
+        <ChevronLeftIcon className="w-5" />
+      </button>
+      <span className="text-sm w-16 text-center">
+        {current + 1} / {numPages}
+      </span>
+      <button
+        className="p-1 rounded hover:bg-gray-100 disabled:opacity-40"
+        onClick={flipNext}
+        disabled={current >= numPages - 1}
+      >
+        <ChevronRightIcon className="w-5" />
+      </button>
+
+      <span className="mx-3 h-4 w-px bg-gray-300" />
+
+      <button
+        className="p-1 rounded hover:bg-gray-100"
+        onClick={() => zoom(1 / 1.1)}
+      >
+        <MinusIcon className="w-5" />
+      </button>
+      <button
+        className="p-1 rounded hover:bg-gray-100"
+        onClick={() => zoom(1.1)}
+      >
+        <PlusIcon className="w-5" />
+      </button>
+    </div>
+  </div>
+);
 
 export default function FolioPage() {
   /* — 1  slug / folioId — */
@@ -44,6 +92,12 @@ export default function FolioPage() {
       /* ignore */
     }
   };
+
+  const [current, setCurrent] = useState(0);
+  const [numPages, setNumPages] = useState(0);
+  const flipNext = () => {/* logic to flip to the next page */};
+  const flipPrev = () => {/* logic to flip to the previous page */};
+  const zoom = (factor: number) => {/* logic to zoom in or out */};
 
   if (!slug) {
     return (
@@ -75,8 +129,22 @@ export default function FolioPage() {
 
         {/* BOOK (fades in) */}
         <main className="flex-grow flex items-center justify-center px-4 pb-24 animate-fade-in">
-          <FlipbookViewer s3Path={s3Path} />
+          <FlipbookViewer
+            s3Path={s3Path}
+            current={current}
+            setCurrent={setCurrent}
+            numPages={numPages}
+            setNumPages={setNumPages}
+          />
         </main>
+
+        <Toolbar
+          current={current}
+          numPages={numPages}
+          flipNext={flipNext}
+          flipPrev={flipPrev}
+          zoom={zoom}
+        />
       </div>
     </>
   );
