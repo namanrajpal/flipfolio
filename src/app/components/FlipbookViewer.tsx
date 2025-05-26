@@ -71,7 +71,10 @@ export default function FlipbookViewer({
   /** responsively pick width/height */
   const calcPageDims = useCallback(
     (w: number, h: number) => {
-      const maxW = Math.min(window.innerWidth * 0.8, 1000); // 80 vw, cap 800
+      const isMobile = window.innerWidth < 640;
+      const maxW = isMobile
+          ? window.innerWidth * 0.95 // 95 vw on phones
+          : Math.min(window.innerWidth * 0.9, 1000); // 90 vw, cap 1 000 px on larger screens
       const aspect = h / w;
       const width = maxW;
       const height = Math.round(maxW * aspect);
