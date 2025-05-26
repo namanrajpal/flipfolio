@@ -77,28 +77,6 @@ export default function FolioPage() {
         <main className="flex-grow flex items-center justify-center px-4 pb-24 animate-fade-in">
           <FlipbookViewer s3Path={s3Path} />
         </main>
-
-        {/* STICKY FOOTER w/ share button */}
-        <footer className="sticky bottom-0 w-full bg-white/80 backdrop-blur-md border-t border-gray-200 py-4 flex flex-col items-center gap-2">
-          <button
-            onClick={handleCopy}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium
-                       bg-blue-600 hover:bg-blue-700 text-white shadow transition-colors"
-          >
-            {copied ? (
-              <>
-                <CheckIcon className="w-4 h-4" /> Copied!
-              </>
-            ) : (
-              <>
-                <ShareIcon className="w-4 h-4" /> Copy public link
-              </>
-            )}
-          </button>
-          <p className="text-xs text-gray-600">
-            Share this link so others can view your flipbook
-          </p>
-        </footer>
       </div>
     </>
   );
