@@ -27,9 +27,11 @@ interface ToolbarProps {
   flipNext: () => void;
   flipPrev: () => void;
   zoom: (factor: number) => void;
+  onCopy: () => void;
+  copied: boolean;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ current, numPages, flipNext, flipPrev, zoom }) => (
+const Toolbar: React.FC<ToolbarProps> = ({ current, numPages, flipNext, flipPrev, zoom, onCopy, copied }) => (
   <div className="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md shadow-md flex justify-center py-2">
     <div className="flex items-center gap-3">
       <button
@@ -63,6 +65,19 @@ const Toolbar: React.FC<ToolbarProps> = ({ current, numPages, flipNext, flipPrev
         onClick={() => zoom(1.1)}
       >
         <PlusIcon className="w-5" />
+      </button>
+
+      <span className="mx-3 h-4 w-px bg-gray-300" />
+
+      <button
+        className="p-1 rounded hover:bg-gray-100 transition-colors"
+        onClick={onCopy}
+      >
+        {copied ? (
+          <CheckIcon className="w-5 text-green-600" />
+        ) : (
+          <ShareIcon className="w-5" />
+        )}
       </button>
     </div>
   </div>
@@ -132,7 +147,7 @@ export default function FolioPage() {
 
         {/* HEADER */}
         <header className="pt-6 text-center">
-          <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 drop-shadow-sm">
+          <h1 className="text-2xl sm:text-4xl font-light text-gray-800 drop-shadow-sm" style={{ fontFamily: "'SF Pro Display', 'Helvetica Neue', ui-sans-serif" }}>
             {titleText}
           </h1>
         </header>
@@ -154,6 +169,8 @@ export default function FolioPage() {
           flipNext={flipNext}
           flipPrev={flipPrev}
           zoom={zoom}
+          onCopy={handleCopy}
+          copied={copied}
         />
       </div>
     </>
