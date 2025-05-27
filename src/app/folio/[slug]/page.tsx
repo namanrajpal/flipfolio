@@ -26,7 +26,7 @@ interface ToolbarProps {
   numPages: number;
   flipNext: () => void;
   flipPrev: () => void;
-  zoom: (factor: number) => void;
+  zoom: (type: string) => void;
   onCopy: () => void;
   copied: boolean;
 }
@@ -56,13 +56,13 @@ const Toolbar: React.FC<ToolbarProps> = ({ current, numPages, flipNext, flipPrev
 
       <button
         className="p-1 rounded hover:bg-gray-100"
-        onClick={() => zoom(1 / 1.1)}
+        onClick={() => zoom('out')}
       >
         <MinusIcon className="w-5" />
       </button>
       <button
         className="p-1 rounded hover:bg-gray-100"
-        onClick={() => zoom(1.1)}
+        onClick={() => zoom('in')}
       >
         <PlusIcon className="w-5" />
       </button>
@@ -115,14 +115,29 @@ export default function FolioPage() {
       setCurrent(current + 1);
     }
   };
-  
+
   const flipPrev = () => {
     if (current > 0) {
       setCurrent(current - 1);
     }
   };
 
-  const zoom = (factor: number) => {/* logic to zoom in or out */};
+  const zoom = (mode: string) => {/* logic to zoom in or out */
+    const flip: HTMLElement | null = document.getElementById('flipbook');
+    if (mode === 'in') {
+      // console.log('zoom in', flip);
+      if (flip) {
+        const currentScale = parseFloat(flip.style.transform.replace(/[^0-9.]/g, '')) || 1;
+        flip.style.transform = `scale(${currentScale * 1.1})`;
+      }
+    } else {
+      // console.log('zoom out', flip);
+      if (flip) {
+        const currentScale = parseFloat(flip.style.transform.replace(/[^0-9.]/g, '')) || 1;
+        flip.style.transform = `scale(${Math.max(currentScale / 1.1, 0.5)})`;
+      }
+    }
+  };
 
   if (!slug) {
     return (
@@ -155,6 +170,7 @@ export default function FolioPage() {
         {/* BOOK (fades in) */}
         <main className="flex-grow flex items-center justify-center px-4 pb-24 animate-fade-in">
           <FlipbookViewer
+            slug={slug}
             s3Path={s3Path}
             current={current}
             setCurrent={setCurrent}
