@@ -20,8 +20,8 @@ export default function Home() {
       <header className="mb-12 space-y-4 animate-fade-in">
         <div className="mx-auto relative h-24 w-24 sm:h-32 sm:w-32 rounded-2xl overflow-hidden shadow-xl ring-1 ring-gray-200">
           <Image
-            src="/flipfoliobrand.png"
-            alt="FlipFolio logo"
+            src="/flipfolios-brand-logo.png"
+            alt="FlipFolios logo"
             fill
             sizes="(min-width: 640px) 128px, 96px"
             className="object-cover"
@@ -29,7 +29,7 @@ export default function Home() {
           />
         </div>
         <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight">
-          Welcome to FlipFolio!
+          Welcome to FlipFolios!
         </h1>
         <p className="max-w-xl text-gray-600 mx-auto">
           Upload your multi‑page PDF and we’ll transform it into a stunning, shareable flipbook.

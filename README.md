@@ -1,10 +1,12 @@
-## FlipFolio
+## FlipFolios
 
-FlipFolio is a web application that transforms PDF documents into interactive, visually stunning digital flipbooks that can be shared via unique URLs. Built with modern web technologies, FlipFolio offers an elegant user experience for both uploading PDFs and viewing the resulting flipbooks.
+FlipFolios is a web application that transforms PDF documents into interactive, visually stunning digital flipbooks that can be shared via unique URLs. Built with modern web technologies, FlipFolios offers an elegant user experience for both uploading PDFs and viewing the resulting flipbooks.
+
+🌐 **Live Website**: [https://www.flipfolios.com](https://www.flipfolios.com)
 
 ## Overview
 
-FlipFolio simplifies the process of converting static PDF documents into engaging, interactive flipbooks. Users can upload their PDFs through a simple drag-and-drop interface, and the application automatically transforms them into flipbooks with realistic page-turning animations, zoom functionality, and easy sharing options.
+FlipFolios simplifies the process of converting static PDF documents into engaging, interactive flipbooks. Users can upload their PDFs through a simple drag-and-drop interface, and the application automatically transforms them into flipbooks with realistic page-turning animations, zoom functionality, and easy sharing options.
 
 The application utilizes AWS Amplify for backend services, including authentication and S3 storage for the PDF files. The frontend is built with Next.js and styled with Tailwind CSS for a responsive and modern UI.
 
@@ -114,7 +116,7 @@ The application is designed to be deployed on Vercel, which provides optimal sup
 
 ## License
 
-© 2025 FlipFolio. All rights reserved.
+© 2025 FlipFolios. All rights reserved.
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 

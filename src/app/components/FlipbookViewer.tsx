@@ -51,7 +51,7 @@ interface ViewerProps {
 export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, setNumPages }: ViewerProps) {
   ensureAmplifyConfigured();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [progress, setProgress]   = useState<number | null>(null);
+  const [documentLoadingProgress, setDocumentLoadingProgress]   = useState<number | null>(null);
   const [pageDims, setDims] = useState({ w: 600, h: 800 });
   const flipRef = useRef<{
     pageFlip: () => {
@@ -93,30 +93,30 @@ export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, 
   return (
     <div className="w-full flex flex-col items-center">
       {/* ① progress overlay */}
-      {progress !== null && (
+      {documentLoadingProgress !== null && (
         <div className="flex flex-col items-center gap-4 py-20 w-full">
           <div className="w-56 h-2.5 bg-gray-200 rounded-full overflow-hidden">
             <div
               className="h-full bg-blue-600 transition-all"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${documentLoadingProgress}%` }}
             />
           </div>
-          <p className="text-sm text-gray-500">{progress}%</p>
+          <p className="text-sm text-gray-500">{documentLoadingProgress}%</p>
         </div>
       )}
       <Document
         file={pdfUrl}
-        loading={null}                                  /* we’ll render our own */
+        loading={null} 
         onLoadProgress={({ loaded, total }) => {
-          if (total) setProgress(Math.round((loaded / total) * 100));
+          if (total) setDocumentLoadingProgress(Math.round((loaded / total) * 100));
         }}
         onLoadSuccess={async (doc) => {
           setNumPages(doc.numPages);
           const page = await doc.getPage(1);
           const [, , w, h] = page.view;
           calcDims(w, h);
-          setProgress(null); 
-        }}
+          setDocumentLoadingProgress(null); 
+        }} 
       >
         {numPages > 0 && (
           <HTMLFlipBook
