@@ -13,7 +13,7 @@ export default function Home() {
 
   const handleUploadSuccess = ({ slug, s3Path }: { slug: string, s3Path: string }) => {
     sessionStorage.clear();
-    if (!isAmplifyConfigured()) {
+    if (!isAmplifyConfigured()) { // Store slug in sessionStorage if Amplify is not configured
       sessionStorage.setItem(slug, s3Path);
     }
 

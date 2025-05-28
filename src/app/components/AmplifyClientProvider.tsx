@@ -5,7 +5,7 @@ import { Amplify } from 'aws-amplify';
 // import amplifyconfig from '../../amplifyconfiguration.json';
 
 let amplifyconfig: any;
-try { 
+try {  // Attempt to import the Amplify configuration file
   amplifyconfig = require('../../amplifyconfiguration.json');
 }catch (error) {
   console.warn('Amplify configuration file not found. Please ensure amplifyconfiguration.json exists in the correct path.');

@@ -123,15 +123,13 @@ export default function FolioPage() {
   };
 
   const zoom = (mode: string) => {/* logic to zoom in or out */
-    const flip: HTMLElement | null = document.getElementById('flipbook');
+    const flip: HTMLElement | null = document.getElementById('flipbook-viewer');
     if (mode === 'in') {
-      // console.log('zoom in', flip);
       if (flip) {
         const currentScale = parseFloat(flip.style.transform.replace(/[^0-9.]/g, '')) || 1;
         flip.style.transform = `scale(${currentScale * 1.1})`;
       }
     } else {
-      // console.log('zoom out', flip);
       if (flip) {
         const currentScale = parseFloat(flip.style.transform.replace(/[^0-9.]/g, '')) || 1;
         flip.style.transform = `scale(${Math.max(currentScale / 1.1, 0.5)})`;

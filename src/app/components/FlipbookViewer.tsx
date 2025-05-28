@@ -64,11 +64,8 @@ export default function FlipbookViewer({ slug, s3Path, current, setCurrent, numP
   } | null>(null); // PageFlip instance
 
   /* signed URL */
-  useEffect(() => {
-    // console.log('Fetching PDF URL for slug:', slug, 'from S3 path:', s3Path);
-    if (sessionStorage.getItem(slug)) {
-      // Local URL bypass
-      // console.log('Using local URL from sessionStorage:', sessionStorage.getItem(slug));
+  useEffect(() => {             
+    if (sessionStorage.getItem(slug)) { // Getting file URL from sessionStorage if amplify is not configured 
       setPdfUrl(sessionStorage.getItem(slug));
     } else {
       getUrl({ path: s3Path, options: { expiresIn: 3600 } }).then(({ url }) =>
@@ -99,7 +96,7 @@ export default function FlipbookViewer({ slug, s3Path, current, setCurrent, numP
   }, [current]);
 
   return (
-    <div className="w-full flex flex-col items-center"  id='flipbook'>
+    <div className="w-full flex flex-col items-center"  id='flipbook-viewer'>
       {/* ① progress overlay */}
       {documentLoadingProgress !== null && (
         <div className="flex flex-col items-center gap-4 py-20 w-full">

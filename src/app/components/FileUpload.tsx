@@ -54,22 +54,20 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
       .replace(/\s+/g, '-');           // no spaces
     const slug = `${base}-${nano()}`;   // e.g. portfolio_showcase-cvb44g
     const uploadPath = `public/${slug}.pdf`;
-
-    if (!isAmplifyConfigured()) { //Logic to handle local file path if Amplify is not configured
-      setError('Amplify is not configured.Making a local file path');
-      const localPath = URL.createObjectURL(file);
-      // console.log('Local file path:', localPath);
-      setMessage(`Successfully uploaded: ${file.name}`);
-      setProgress(100);
-      onUploadSuccess({ slug, s3Path: localPath });
-      setFile(null); // Reset file state
-      if (fileInputRef.current) { // Reset the actual file input value
-        fileInputRef.current.value = "";
+    try {
+      if (!isAmplifyConfigured()) {           //Logic to handle local file path if Amplify is not configured
+        setError('Amplify is not configured.Making a local file path');
+        const localPath = URL.createObjectURL(file);
+        setMessage(`Successfully uploaded: ${file.name}`);
+        setProgress(100);
+        onUploadSuccess({ slug, s3Path: localPath });
+        setFile(null); // Reset file state
+        if (fileInputRef.current) { // Reset the actual file input value
+          fileInputRef.current.value = "";
+        }
+        return;
       }
-      return;
-    }
-    else {
-      try {
+      else {
         const uploadTask = uploadData({
           path: uploadPath,
           data: file,
@@ -94,15 +92,14 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
         if (fileInputRef.current) { // Reset the actual file input value
           fileInputRef.current.value = "";
         }
-
-      } catch (err: any) {
-        console.error('Upload error:', err);
-        setError(`Upload failed: ${err.message || 'Unknown error'}`);
-        setMessage(null);
-        setProgress(0);
-      } finally {
-        setUploading(false);
       }
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      setError(`Upload failed: ${err.message || 'Unknown error'}`);
+      setMessage(null);
+      setProgress(0);
+    } finally {
+      setUploading(false);
     }
   };
 
