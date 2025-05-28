@@ -5,12 +5,18 @@ import Image from 'next/image';
 import FileUpload from './components/FileUpload';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { isAmplifyConfigured } from './components/AmplifyClientProvider';
 
 export default function Home() {
   const [dragOver, setDragOver] = useState(false);
   const router = useRouter();
 
-  const handleUploadSuccess = ({ slug }: { slug: string }) => {
+  const handleUploadSuccess = ({ slug, s3Path }: { slug: string, s3Path: string }) => {
+    sessionStorage.clear();
+    if (!isAmplifyConfigured()) { // Store slug in sessionStorage if Amplify is not configured
+      sessionStorage.setItem(slug, s3Path);
+    }
+
     router.push(`/folio/${slug}`);
   };
 
@@ -37,7 +43,7 @@ export default function Home() {
       </header>
 
       {/* upload card */}
-          <FileUpload onUploadSuccess={handleUploadSuccess} />
+      <FileUpload onUploadSuccess={handleUploadSuccess} />
 
       <footer className="mt-20 text-xs text-gray-400">© 2025 FlipFolio. All rights reserved.</footer>
     </main>
