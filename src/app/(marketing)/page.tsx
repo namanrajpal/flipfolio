@@ -15,6 +15,7 @@
              height={120}
              width={120}
              priority
+             className="rounded-3xl shadow-lg"
            />
    
            <h1 className="text-5xl font-extrabold tracking-tight drop-shadow-lg">
@@ -46,7 +47,8 @@
          {/* Call-to-action */}
          <Link
            href="/home"
-           className="mt-16 inline-flex items-center gap-2 bg-white text-blue-700 font-semibold px-8 py-3 rounded-full shadow-lg hover:scale-105 transition"
+           className="mt-16 inline-flex items-center gap-2 bg-white text-blue-700 font-semibold text-lg px-10 py-4 rounded-full shadow-xl hover:scale-110 transition"
+           /*         ↑ bigger font & padding, larger hover scale */
          >
            Get started – it’s free
          </Link>
