@@ -2,7 +2,7 @@
   "version": "1",
   "cognitoConfig": {
     "identityPoolName": "flipfolioapp8031d351_identitypool_8031d351",
-    "allowUnauthenticatedIdentities": true,
+    "allowUnauthenticatedIdentities": false,
     "resourceNameTruncated": "flipfo8031d351",
     "userPoolName": "flipfolioapp8031d351_userpool_8031d351",
     "autoVerifiedAttributes": [
@@ -36,7 +36,7 @@
     "sharedId": "8031d351",
     "resourceName": "flipfolioapp8031d351",
     "authSelections": "identityPoolAndUserPool",
-    "useDefault": "default",
+    "useDefault": "defaultSocial",
     "usernameAttributes": [
       "email"
     ],
@@ -57,6 +57,14 @@
       ]
     },
     "breakCircularDependency": true,
-    "dependsOn": []
+    "dependsOn": [],
+    "hostedUI": true,
+    "hostedUIDomainName": "flipfolioapp1c6edc86-1c6edc86",
+    "authProvidersUserPool": [
+      "Google"
+    ],
+    "hostedUIProviderMeta": "[{\"ProviderName\":\"Google\",\"authorize_scopes\":\"openid email profile\",\"AttributeMapping\":{\"email\":\"email\",\"username\":\"sub\"}}]",
+    "authProviders": [],
+    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"https://www.flipfolios.com/oauth2/idpresponse/\",\"http://localhost:3001/oauth2/idpresponse/\"],\"LogoutURLs\":[\"https://www.flipfolios.com/\",\"http://localhost:3001/\"]}"
   }
 }
