@@ -53,9 +53,12 @@
            Get started – it’s free
          </Link>
    
-         <footer className="mt-20 text-xs opacity-70">
-           © 2025 FlipFolios. All rights reserved.
-         </footer>
+         <footer className="mt-20 text-xs opacity-80 text-center">
+            © 2025 FlipFolios. All rights reserved.
+            <br />
+            Made&nbsp;with&nbsp;❤️ by Naman Rajpal
+        </footer>
+
        </main>
      );
    }

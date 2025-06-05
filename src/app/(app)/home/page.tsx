@@ -40,8 +40,8 @@ export default function HomeApp() {
         alt="FlipFolios logo"
         height={96}
         width={96}
-        className="mb-8"
-      />
+        className="rounded-3xl shadow-lg"
+       />
 
       {/* Authenticator handles sign-in; we show UI only when authed */}
       <Authenticator socialProviders={['google']} hideSignUp>
