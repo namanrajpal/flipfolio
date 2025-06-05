@@ -3,14 +3,35 @@
 
 import { Amplify } from 'aws-amplify';
 import { Authenticator } from '@aws-amplify/ui-react';
+import { fetchUserAttributes } from 'aws-amplify/auth';   // 👈 new
 import awsconfig from '@/aws-exports';
 import Image from 'next/image';
 import FileUpload from '../../components/FileUpload';
 import '@aws-amplify/ui-react/styles.css';
+import { useState, useEffect } from 'react';
 
 Amplify.configure(awsconfig);
 
 export default function HomeApp() {
+  /** hold the friendly name once we load attributes */
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
+  /** load attributes AFTER the user is authenticated */
+  async function loadName() {
+    try {
+      const attrs = await fetchUserAttributes();   // { name, given_name, ... }
+      setDisplayName(
+        attrs.name ?? attrs.given_name ?? attrs.email?.split('@')[0] ?? null
+      );
+    } catch {
+      /* ignored – user still signing in */
+    }
+  }
+
+  useEffect(() => {
+    loadName();
+  }, []);
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center">
       {/* logo */}
@@ -22,15 +43,23 @@ export default function HomeApp() {
         className="mb-8"
       />
 
-      {/* Authenticator shows Google button when signed-out,
-          and renders the children only when signed-in */}
+      {/* Authenticator handles sign-in; we show UI only when authed */}
       <Authenticator socialProviders={['google']} hideSignUp>
-        {({ user }) => (
-          <FileUpload
-            onUploadSuccess={({ slug }) => {
-              window.location.assign(`/folio/${slug}`);
-            }}
-          />
+        {() => (
+          <>
+            {/* ---- welcome header ---- */}
+            {displayName && (
+              <h2 className="mb-6 text-2xl font-semibold text-gray-700">
+                Welcome, {displayName}!
+              </h2>
+            )}
+
+            <FileUpload
+              onUploadSuccess={({ slug }) =>
+                window.location.assign(`/folio/${slug}`)
+              }
+            />
+          </>
         )}
       </Authenticator>
 
