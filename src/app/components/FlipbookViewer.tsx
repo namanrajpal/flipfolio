@@ -50,9 +50,11 @@ interface ViewerProps {
   setCurrent: (n: number) => void;
   numPages: number;
   setNumPages: (n: number) => void;
+  zoomLevel?: number;
+  setZoomLevel: (zoom: number | ((prev: number) => number)) => void;
 }
 
-export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, setNumPages }: ViewerProps) {
+export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, setNumPages, zoomLevel = 1, setZoomLevel }: ViewerProps) {
   ensureAmplifyConfigured();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [documentLoadingProgress, setDocumentLoadingProgress] = useState<number | null>(null);
@@ -64,7 +66,7 @@ export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, 
       flip: (page: number) => void;
       getCurrentPageIndex: () => number;
     };
-  } | null>(null); // PageFlip instance
+  } | null>(null);
 
   /* signed URL with caching */
   useEffect(() => {
@@ -76,17 +78,30 @@ export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, 
     })();
   }, [s3Path]);
 
-  /* responsive width/height */
-  /* calc pageDims – replace the existing calcDims call */
+  /* responsive width/height with zoom */
   const calcDims = useCallback((pageW: number, pageH: number) => {
     const aspect = pageH / pageW;
-  
+    
     /* 48 vw (almost half screen) capped at 750 px per sheet */
-    const sheetW = Math.min(window.innerWidth * 0.48, 750);
+    const baseSheetW = Math.min(window.innerWidth * 0.48, 750);
+    const sheetW = baseSheetW * zoomLevel;
     const sheetH = sheetW * aspect;
-  
+    
     setDims({ w: sheetW, h: sheetH });
-  }, []);
+  }, [zoomLevel]);
+
+  // Recalculate dimensions when zoom level changes
+  useEffect(() => {
+    if (pdfUrl) {
+      const loadPage = async () => {
+        const doc = await pdfjs.getDocument(pdfUrl).promise;
+        const page = await doc.getPage(1);
+        const [, , w, h] = page.view;
+        calcDims(w, h);
+      };
+      loadPage();
+    }
+  }, [zoomLevel, pdfUrl, calcDims]);
 
   useEffect(() => {
     if (flipRef.current?.pageFlip()) {
@@ -97,8 +112,54 @@ export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, 
     }
   }, [current]);
 
+  // Add touch zoom handling
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    let startDist = 0;
+    let startZoom = zoomLevel;
+
+    const touchstart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        const dist = Math.hypot(
+          e.touches[0].pageX - e.touches[1].pageX,
+          e.touches[0].pageY - e.touches[1].pageY
+        );
+        startDist = dist;
+        startZoom = zoomLevel;
+      }
+    };
+
+    const touchmove = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = Math.hypot(
+          e.touches[0].pageX - e.touches[1].pageX,
+          e.touches[0].pageY - e.touches[1].pageY
+        );
+        const scale = dist / startDist;
+        const newZoom = Math.min(Math.max(startZoom * scale, 0.5), 3);
+        setZoomLevel(newZoom);
+      }
+    };
+
+    window.addEventListener('touchstart', touchstart);
+    window.addEventListener('touchmove', touchmove, { passive: false });
+
+    return () => {
+      window.removeEventListener('touchstart', touchstart);
+      window.removeEventListener('touchmove', touchmove);
+    };
+  }, [zoomLevel, setZoomLevel]);
+
   return (
-    <div className="w-full flex flex-col items-center">
+    <div 
+      className="w-full flex flex-col items-center transition-all duration-200"
+      style={{
+        maxWidth: `${Math.min(100, 96 * zoomLevel)}%`,
+        maxHeight: `${Math.min(100, 96 * zoomLevel)}vh`
+      }}
+    >
       {/* Show loading state when pdfUrl is not yet available */}
       {!pdfUrl && (
         <div className="flex items-center justify-center py-20">
