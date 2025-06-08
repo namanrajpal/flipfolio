@@ -18,27 +18,30 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 const HTMLFlipBook = dynamic(() => import('react-pageflip'), { ssr: false });
+const WINDOW = 1;          // 0 = current-only, 1 = prev/next, 2 = ±2 …
 
 /* page wrapper – must forward ref for PageFlip */
 // eslint-disable-next-line react/display-name
-const FlipPage = forwardRef<HTMLDivElement, { num: number; width: number }>(
-    ({ num, width }, ref) => {
-      return (
-        <div
-          ref={ref}                                   
-          className="flex h-full w-full items-center justify-center"
-        >
-          <Page
-            pageNumber={num}
-            width={width}
-            loading={null}
-            renderTextLayer={false}
-            renderAnnotationLayer={false}
-          />
-        </div>
-      );
-    },
-  );
+const FlipPage = forwardRef<
+  HTMLDivElement,
+  { num: number; width: number; height: number; render: boolean }
+>(({ num, width, height, render }, ref) => (
+  <div
+    ref={ref}
+    style={{ width, height }}          /* keep geometry stable */
+    className="flex items-center justify-center overflow-hidden bg-white"
+  >
+    {render && (
+      <Page
+        pageNumber={num}
+        width={width}
+        loading={null}
+        renderTextLayer={false}
+        renderAnnotationLayer={false}
+      />
+    )}
+  </div>
+));
 
 interface ViewerProps {
   s3Path: string;
@@ -121,11 +124,11 @@ export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, 
         {numPages > 0 && (
           <HTMLFlipBook
             ref={flipRef}
-            width={pageDims.w}          /* single-sheet width */
+            width={pageDims.w}
             height={pageDims.h}
             size="fixed"
-            usePortrait={false}         /* ⬅ stop auto-portrait */
-            minWidth={350}              /* keep double-page down to 700 px spread */
+            usePortrait={false}
+            minWidth={350}
             maxShadowOpacity={0.4}
             showCover={true}
             className="shadow-xl"
@@ -134,7 +137,13 @@ export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, 
             startPage={current}
           >
             {Array.from({ length: numPages }, (_, i) => (
-              <FlipPage key={i} num={i + 1} width={pageDims.w} />
+              <FlipPage
+                key={i}
+                num={i + 1}
+                width={pageDims.w}
+                height={pageDims.h}
+                render={Math.abs(i - current) <= WINDOW}
+              />
             ))}
           </HTMLFlipBook>
         )}
