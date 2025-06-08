@@ -4,7 +4,6 @@
 import React, { useState, useRef } from 'react';
 import { uploadData } from '@aws-amplify/storage';
 import { ArrowUpTrayIcon, DocumentArrowUpIcon, XCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline'; // Using Heroicons for better UI
-import { nanoid } from 'nanoid/non-secure';   // npm i nanoid
 import { customAlphabet } from 'nanoid/non-secure';
 const nano = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 6);
 
@@ -23,16 +22,24 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      if (selectedFile.type === 'application/pdf') {
-        setFile(selectedFile);
-        setError(null);
-        setMessage(`${selectedFile.name} selected.`);
-        setProgress(0);
-      } else {
+      if (selectedFile.type !== 'application/pdf') {
         setFile(null);
         setError('Invalid file type. Please select a PDF.');
         setMessage(null);
+        return;
       }
+      
+      if (selectedFile.size > 20 * 1024 * 1024) { // 20MB in bytes
+        setFile(null);
+        setError('File is too large. Maximum size is 20MB.');
+        setMessage(null);
+        return;
+      }
+
+      setFile(selectedFile);
+      setError(null);
+      setMessage(`${selectedFile.name} selected.`);
+      setProgress(0);
     }
   };
 
@@ -108,16 +115,24 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
             e.preventDefault();
             if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                 const droppedFile = e.dataTransfer.files[0];
-                 if (droppedFile.type === 'application/pdf') {
-                    setFile(droppedFile);
-                    setError(null);
-                    setMessage(`${droppedFile.name} selected.`);
-                    setProgress(0);
-                } else {
+                if (droppedFile.type !== 'application/pdf') {
                     setFile(null);
                     setError('Invalid file type. Please drop a PDF.');
                     setMessage(null);
+                    return;
                 }
+                
+                if (droppedFile.size > 20 * 1024 * 1024) { // 20MB in bytes
+                    setFile(null);
+                    setError('File is too large. Maximum size is 20MB.');
+                    setMessage(null);
+                    return;
+                }
+
+                setFile(droppedFile);
+                setError(null);
+                setMessage(`${droppedFile.name} selected.`);
+                setProgress(0);
             }
         }}
       >
