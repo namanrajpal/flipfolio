@@ -11,6 +11,7 @@ import dynamic from 'next/dynamic';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { getUrl } from '@aws-amplify/storage';
 import { ensureAmplifyConfigured } from './AmplifyClientProvider';
+import { cacheAndGet } from '../utils/useServiceWorkerCache';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -54,7 +55,7 @@ interface ViewerProps {
 export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, setNumPages }: ViewerProps) {
   ensureAmplifyConfigured();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [documentLoadingProgress, setDocumentLoadingProgress]   = useState<number | null>(null);
+  const [documentLoadingProgress, setDocumentLoadingProgress] = useState<number | null>(null);
   const [pageDims, setDims] = useState({ w: 600, h: 800 });
   const flipRef = useRef<{
     pageFlip: () => {
@@ -65,11 +66,14 @@ export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, 
     };
   } | null>(null); // PageFlip instance
 
-  /* signed URL */
+  /* signed URL with caching */
   useEffect(() => {
-    getUrl({ path: s3Path, options: { expiresIn: 3600 } }).then(({ url }) =>
-      setPdfUrl(url.href),
-    );
+    if (!s3Path) return;
+    (async () => {
+      const { url } = await getUrl({ path: s3Path, options: { expiresIn: 3600 }});
+      const blob = await cacheAndGet(url.href);
+      setPdfUrl(URL.createObjectURL(blob));
+    })();
   }, [s3Path]);
 
   /* responsive width/height */
@@ -95,7 +99,14 @@ export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, 
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* ① progress overlay */}
+      {/* Show loading state when pdfUrl is not yet available */}
+      {!pdfUrl && (
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      )}
+      
+      {/* Progress overlay */}
       {documentLoadingProgress !== null && (
         <div className="flex flex-col items-center gap-4 py-20 w-full">
           <div className="w-56 h-2.5 bg-gray-200 rounded-full overflow-hidden">
@@ -107,47 +118,54 @@ export default function FlipbookViewer({ s3Path, current, setCurrent, numPages, 
           <p className="text-sm text-gray-500">{documentLoadingProgress}%</p>
         </div>
       )}
-      <Document
-        file={pdfUrl}
-        loading={null} 
-        onLoadProgress={({ loaded, total }) => {
-          if (total) setDocumentLoadingProgress(Math.round((loaded / total) * 100));
-        }}
-        onLoadSuccess={async (doc) => {
-          setNumPages(doc.numPages);
-          const page = await doc.getPage(1);
-          const [, , w, h] = page.view;
-          calcDims(w, h);
-          setDocumentLoadingProgress(null); 
-        }} 
-      >
-        {numPages > 0 && (
-          <HTMLFlipBook
-            ref={flipRef}
-            width={pageDims.w}
-            height={pageDims.h}
-            size="fixed"
-            usePortrait={false}
-            minWidth={350}
-            maxShadowOpacity={0.4}
-            showCover={true}
-            className="shadow-xl"
-            mobileScrollSupport={true}
-            onFlip={(e: any) => setCurrent(e.data)}
-            startPage={current}
-          >
-            {Array.from({ length: numPages }, (_, i) => (
-              <FlipPage
-                key={i}
-                num={i + 1}
-                width={pageDims.w}
-                height={pageDims.h}
-                render={Math.abs(i - current) <= WINDOW}
-              />
-            ))}
-          </HTMLFlipBook>
-        )}
-      </Document>
+      {pdfUrl && (
+        <Document
+          file={pdfUrl}
+          loading={null} 
+          onLoadProgress={({ loaded, total }) => {
+            if (total) setDocumentLoadingProgress(Math.round((loaded / total) * 100));
+          }}
+          onLoadSuccess={async (doc) => {
+            setNumPages(doc.numPages);
+            const page = await doc.getPage(1);
+            const [, , w, h] = page.view;
+            calcDims(w, h);
+            setDocumentLoadingProgress(null); 
+          }}
+          error={
+            <div className="flex items-center justify-center py-20 text-red-600">
+              Failed to load PDF
+            </div>
+          }
+        >
+          {numPages > 0 && (
+            <HTMLFlipBook
+              ref={flipRef}
+              width={pageDims.w}
+              height={pageDims.h}
+              size="fixed"
+              usePortrait={false}
+              minWidth={350}
+              maxShadowOpacity={0.4}
+              showCover={true}
+              className="shadow-xl"
+              mobileScrollSupport={true}
+              onFlip={(e: any) => setCurrent(e.data)}
+              startPage={current}
+            >
+              {Array.from({ length: numPages }, (_, i) => (
+                <FlipPage
+                  key={i}
+                  num={i + 1}
+                  width={pageDims.w}
+                  height={pageDims.h}
+                  render={Math.abs(i - current) <= WINDOW}
+                />
+              ))}
+            </HTMLFlipBook>
+          )}
+        </Document>
+      )}
     </div>
   );
 }
