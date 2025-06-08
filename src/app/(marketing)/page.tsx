@@ -15,7 +15,7 @@
              height={120}
              width={120}
              priority
-             className="rounded-3xl shadow-lg"
+             className="mb-8 rounded-3xl shadow-lg"
            />
    
            <h1 className="text-5xl font-extrabold tracking-tight drop-shadow-lg">

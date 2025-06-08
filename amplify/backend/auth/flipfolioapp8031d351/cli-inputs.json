@@ -65,6 +65,6 @@
     ],
     "hostedUIProviderMeta": "[{\"ProviderName\":\"Google\",\"authorize_scopes\":\"openid email profile\",\"AttributeMapping\":{\"email\":\"email\",\"username\":\"sub\"}}]",
     "authProviders": [],
-    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"https://www.flipfolios.com/oauth2/idpresponse/\",\"http://localhost:3001/oauth2/idpresponse/\"],\"LogoutURLs\":[\"https://www.flipfolios.com/\",\"http://localhost:3001/\"]}"
+    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"https://www.flipfolios.com/home/\",\"http://localhost:3001/home/\"],\"LogoutURLs\":[\"https://www.flipfolios.com/\",\"http://localhost:3001/\"]}"
   }
 }

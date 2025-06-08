@@ -4,7 +4,7 @@ import { AmplifyProvider } from './components/AmplifyClientProvider';
 import React from 'react';
 
 export const metadata = {
-  title: 'Flipfolios',
+  title: 'FlipFolios',
   description: 'Create and share PDF flipbooks',
 };
 

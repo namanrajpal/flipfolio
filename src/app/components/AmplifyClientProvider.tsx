@@ -1,10 +1,10 @@
-// src/amplifyClient.tsx               <-- runs in the browser only
 'use client';
 
 import { Amplify } from 'aws-amplify';
+import { Authenticator } from '@aws-amplify/ui-react';
 import amplifyconfig from '../../amplifyconfiguration.json';
+import '@aws-amplify/ui-react/styles.css';
 
-// Guard so we don’t call configure twice if React fast-refreshes
 let configured = false;
 export function ensureAmplifyConfigured() {
   if (!configured) {
@@ -15,5 +15,7 @@ export function ensureAmplifyConfigured() {
 
 export function AmplifyProvider({ children }: { children: React.ReactNode }) {
   ensureAmplifyConfigured();
-  return <>{children}</>;
+
+  /* 👉 provides auth context for useAuthenticator() & friends */
+  return <Authenticator.Provider>{children}</Authenticator.Provider>;
 }
