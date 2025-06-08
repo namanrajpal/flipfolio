@@ -9,19 +9,19 @@ export default function Landing() {
     <main className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden">
       {/* Moving gradient background */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-violet-50 via-fuchsia-50 to-violet-100 animate-gradient"
+        className="absolute inset-0 bg-gradient-to-br from-white via-violet-50/30 to-fuchsia-50/30 animate-gradient"
         style={{ backgroundSize: '200% 200%' }}
       ></div>
       
       {/* Animated blobs */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-violet-300/30 via-fuchsia-200/30 to-transparent rounded-full animate-blob blur-lg"></div>
-        <div className="absolute top-[60%] right-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-fuchsia-300/30 via-purple-200/30 to-transparent rounded-full animate-blob [animation-delay:1s] blur-lg"></div>
-        <div className="absolute top-[30%] left-[30%] w-[500px] h-[500px] bg-gradient-to-br from-purple-300/30 via-violet-200/30 to-transparent rounded-full animate-blob [animation-delay:2s] blur-lg"></div>
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-violet-200/20 via-fuchsia-100/20 to-transparent rounded-full animate-blob blur-lg"></div>
+        <div className="absolute top-[60%] right-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-fuchsia-200/20 via-purple-100/20 to-transparent rounded-full animate-blob [animation-delay:1s] blur-lg"></div>
+        <div className="absolute top-[30%] left-[30%] w-[500px] h-[500px] bg-gradient-to-br from-purple-200/20 via-violet-100/20 to-transparent rounded-full animate-blob [animation-delay:2s] blur-lg"></div>
       </div>
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pt-16 md:pt-0">
         {/* Logo & tagline */}
         <div className="flex flex-col items-center gap-6 text-center">
           <div className="relative">
@@ -53,7 +53,7 @@ export default function Landing() {
           ].map(([title, body]) => (
             <div
               key={title}
-              className="bg-white/40 backdrop-blur-md rounded-3xl p-6 border border-white/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/50"
+              className="bg-white/30 backdrop-blur-sm rounded-3xl p-6 border border-white/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/40"
             >
               <h3 className="font-semibold text-xl mb-2 text-violet-700">{title}</h3>
               <p className="text-slate-600 text-sm leading-relaxed">{body}</p>
