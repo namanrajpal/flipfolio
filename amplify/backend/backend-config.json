@@ -1,39 +1,67 @@
 {
+  "api": {
+    "pdfExtractor": {
+      "dependsOn": [
+        {
+          "category": "function",
+          "resourceName": "pdfExtractor",
+          "attributes": [
+            "Name",
+            "Arn"
+          ]
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    }
+  },
+  "function": {
+    "pdfExtractor": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda",
+      "dependsOn": [
+        {
+          "category": "storage",
+          "resourceName": "s3foliostorage",
+          "attributes": [
+            "BucketName"
+          ]
+        }
+      ]
+    }
+  },
   "auth": {
     "flipfolioapp8031d351": {
-      "customAuth": false,
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
       "dependsOn": [],
+      "customAuth": false,
       "frontendAuthConfig": {
+        "socialProviders": [],
+        "usernameAttributes": [],
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
         "mfaConfiguration": "OFF",
         "mfaTypes": [
           "SMS"
         ],
-        "passwordProtectionSettings": {
-          "passwordPolicyCharacters": [],
-          "passwordPolicyMinLength": 8
-        },
-        "signupAttributes": [
-          "EMAIL"
-        ],
-        "socialProviders": [
-          "GOOGLE"
-        ],
-        "usernameAttributes": [
-          "EMAIL"
-        ],
         "verificationMechanisms": [
           "EMAIL"
         ]
-      },
-      "providerPlugin": "awscloudformation",
-      "service": "Cognito"
+      }
     }
   },
   "storage": {
     "s3foliostorage": {
-      "dependsOn": [],
+      "service": "S3",
       "providerPlugin": "awscloudformation",
-      "service": "S3"
+      "dependsOn": []
     }
   }
 }

@@ -1,12 +1,19 @@
-export async function cacheAndGet(url: string) {
-  const cache = await caches.open('flipfolios-pdfs');
-  const cached = await cache.match(url);
-  if (cached) return cached.blob();
+import { customAlphabet } from 'nanoid/non-secure';
 
-  const res = await fetch(url);  // No need for credentials with pre-signed URLs
-  if (!res.ok) {
-    throw new Error(`Failed to fetch PDF: ${res.status} ${res.statusText}`);
+const nano = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 6);
+
+export const generateNanoid = () => nano();
+
+export async function cacheAndGet(url: string): Promise<Blob> {
+  const cache = await caches.open('pdf-cache');
+  const response = await cache.match(url);
+
+  if (response) {
+    return response.blob();
   }
-  await cache.put(url, res.clone());                // saved for next time
-  return await res.blob();
+
+  const fetchResponse = await fetch(url);
+  const responseClone = fetchResponse.clone();
+  await cache.put(url, responseClone);
+  return fetchResponse.blob();
 }

@@ -5,6 +5,8 @@ import React, { useState, useRef } from 'react';
 import { uploadData } from '@aws-amplify/storage';
 import { ArrowUpTrayIcon, DocumentArrowUpIcon, XCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline'; // Using Heroicons for better UI
 import { customAlphabet } from 'nanoid/non-secure';
+import { extractPdfContent } from '../services/pdfExtractor';
+
 const nano = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 6);
 
 interface FileUploadProps {
@@ -17,6 +19,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
+  const [stage, setStage] = useState<'uploading' | 'processing' | 'complete'>('uploading');
   const fileInputRef = useRef<HTMLInputElement>(null); // Ref for the hidden file input
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,16 +53,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
     }
 
     setUploading(true);
-    setError(null);
-    setProgress(0);
-    setMessage('Preparing upload...');
+    setError('');
+    setMessage('');
+    setStage('uploading');
 
-    const base = file.name.replace(/\.[^.]+$/, '')          // drop extension
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, '-');           // no spaces
-    const slug = `${base}-${nano()}`;   // e.g. portfolio_showcase-cvb44g
-    const uploadPath = `public/${slug}.pdf`; 
+    const slug = `${file.name.replace(/\.pdf$/i, '').toLowerCase().replace(/\s+/g, '-')}-${nano()}`;
+    const uploadPath = `public/${slug}.pdf`;
 
     try {
       const uploadTask = uploadData({
@@ -76,22 +75,35 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
           },
         },
       });
-      console.log('Upload task started:', uploadTask);
-      const result = await uploadTask.result;
       
-      setMessage(`Successfully uploaded: ${file.name}`);
-      setProgress(100);
-      onUploadSuccess({ slug, s3Path: result.path });
-      setFile(null); // Reset file state
-      if (fileInputRef.current) { // Reset the actual file input value
-        fileInputRef.current.value = "";
+      const result = await uploadTask.result;
+      setMessage('Processing PDF content...');
+      setProgress(0);
+      setStage('processing');
+      
+      try {
+        await extractPdfContent(result.path);
+        setStage('complete');
+        setProgress(100);
+        setMessage('PDF processed successfully!');
+        onUploadSuccess({ slug, s3Path: result.path });
+      } catch (extractError) {
+        console.warn('PDF extraction failed:', extractError);
+        // Still allow viewing even if extraction fails
+        setStage('complete');
+        setProgress(100);
+        setMessage('PDF uploaded (processing incomplete)');
+        onUploadSuccess({ slug, s3Path: result.path });
       }
       
+      setFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     } catch (err: any) {
-      console.error('Upload error:', err);
-      setError(`Upload failed: ${err.message || 'Unknown error'}`);
-      setMessage(null);
+      setError(err.message || 'Failed to upload file');
       setProgress(0);
+      setStage('uploading');
     } finally {
       setUploading(false);
     }
@@ -100,6 +112,38 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
   // Function to trigger the hidden file input
   const triggerFileInput = () => {
     fileInputRef.current?.click();
+  };
+
+  const ProgressIndicator: React.FC<{ stage: 'uploading' | 'processing' | 'complete'; progress: number; message: string | null; }> = ({ stage, progress, message }) => {
+    return (
+      <div className="mt-4 space-y-2">
+        <div className="flex justify-between text-sm text-gray-600">
+          <span>{message || `${stage === 'uploading' ? 'Uploading' : 'Processing'} PDF...`}</span>
+          <span>{progress}%</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2.5">
+          <div 
+            className={`h-2.5 rounded-full transition-all duration-300 ${
+              stage === 'complete' ? 'bg-green-600' : 'bg-blue-600'
+            }`}
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="flex justify-center gap-2 mt-2">
+          {['uploading', 'processing', 'complete'].map((s, i) => (
+            <div 
+              key={s}
+              className={`w-2 h-2 rounded-full ${
+                stage === s ? 
+                  'bg-blue-600' : 
+                  i < ['uploading', 'processing', 'complete'].indexOf(stage) ?
+                    'bg-green-600' : 'bg-gray-300'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -174,13 +218,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
       </button>
       
       {/* Progress Bar and Messages */}
-      {uploading && progress > 0 && (
-        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-4">
-          <div 
-            className="bg-blue-600 h-2.5 rounded-full transition-all duration-150 ease-out" 
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
+      {uploading && (
+        <ProgressIndicator 
+          stage={stage}
+          progress={progress}
+          message={message}
+        />
       )}
 
       {!uploading && message && !error && progress === 100 && ( // Success message

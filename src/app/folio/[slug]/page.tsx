@@ -3,9 +3,12 @@
 import { useParams, usePathname } from 'next/navigation';
 import Head from 'next/head';
 import FlipbookViewer from '../../components/FlipbookViewer';
+import ScrollView from '../../components/ScrollView';
 import { ShareIcon, CheckIcon } from '@heroicons/react/24/solid';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/solid';
+import { ExtractedContent } from '@/types/pdf-extract';
+import { getUrl } from '@aws-amplify/storage';
 
 function slugToTitle(slug: string): string {
   // 1. drop the nano-id suffix (-g2neek, _k9p3x7 …)
@@ -24,8 +27,8 @@ function slugToTitle(slug: string): string {
 interface ToolbarProps {
   current: number;
   numPages: number;
-  flipNext: () => void;
-  flipPrev: () => void;
+  flipNext?: () => void;
+  flipPrev?: () => void;
   zoom: (factor: number) => void;
   onCopy: () => void;
   copied: boolean;
@@ -36,27 +39,31 @@ const Toolbar: React.FC<ToolbarProps> = ({ current, numPages, flipNext, flipPrev
   <div className="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md shadow-md flex justify-center py-2 px-4">
     <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
       {/* Navigation controls */}
-      <div className="flex items-center">
-        <button
-          className="p-1.5 rounded-l hover:bg-gray-100 disabled:opacity-40"
-          onClick={flipPrev}
-          disabled={current === 0}
-        >
-          <ChevronLeftIcon className="w-5" />
-        </button>
-        <span className="text-sm w-16 text-center">
-          {current + 1} / {numPages}
-        </span>
-        <button
-          className="p-1.5 rounded-r hover:bg-gray-100 disabled:opacity-40"
-          onClick={flipNext}
-          disabled={current >= numPages - 1}
-        >
-          <ChevronRightIcon className="w-5" />
-        </button>
-      </div>
+      {flipNext && flipPrev && (
+        <>
+          <div className="flex items-center">
+            <button
+              className="p-1.5 rounded-l hover:bg-gray-100 disabled:opacity-40"
+              onClick={flipPrev}
+              disabled={current === 0}
+            >
+              <ChevronLeftIcon className="w-5" />
+            </button>
+            <span className="text-sm w-16 text-center">
+              {current + 1} / {numPages}
+            </span>
+            <button
+              className="p-1.5 rounded-r hover:bg-gray-100 disabled:opacity-40"
+              onClick={flipNext}
+              disabled={current >= numPages - 1}
+            >
+              <ChevronRightIcon className="w-5" />
+            </button>
+          </div>
 
-      <span className="mx-1 sm:mx-3 h-4 w-px bg-gray-300" />
+          <span className="mx-1 sm:mx-3 h-4 w-px bg-gray-300" />
+        </>
+      )}
 
       {/* Zoom controls */}
       <div className="flex items-center">
@@ -100,8 +107,9 @@ const Toast = ({ message, show }: { message: string; show: boolean }) => (
   </div>
 );
 
+type ViewMode = 'flipbook' | 'scroll' | 'dynamic';
+
 export default function FolioPage() {
-  /* — 1  slug / folioId — */
   const params = useParams();
   const slug = (params.slug as string) ?? (params.folioId as string);
   const s3Path = `public/${slug}.pdf`;
@@ -133,7 +141,26 @@ export default function FolioPage() {
   const [current, setCurrent] = useState(0);
   const [numPages, setNumPages] = useState(0);
   const [zoomLevel, setZoomLevel] = useState(1);
-  
+  const [viewMode, setViewMode] = useState<ViewMode>('flipbook');
+  const [extractedContent, setExtractedContent] = useState<ExtractedContent | null>(null);
+
+  useEffect(() => {
+    const loadExtractedContent = async () => {
+      try {
+        const extractedKey = `${s3Path}.extracted.json`;
+        const { url } = await getUrl({ path: extractedKey });
+        const response = await fetch(url.toString());
+        if (response.ok) {
+          const content = await response.json();
+          setExtractedContent(content);
+        }
+      } catch (error) {
+        console.log('No extracted content available yet');
+      }
+    };
+    loadExtractedContent();
+  }, [s3Path]);
+
   const flipNext = () => {
     if (current < numPages - 1) {
       setCurrent(current + 1);
@@ -165,44 +192,78 @@ export default function FolioPage() {
   return (
     <>
       <Head>
-        <title>{`Flipbook · ${titleText}`}</title>
-        <meta
-          name="description"
-          content={`Interactive flipbook view of ${slug}.pdf`}
-        />
+        <title>{`${titleText} · FlipFolio`}</title>
+        <meta name="description" content={`Interactive document view of ${slug}.pdf`} />
       </Head>
 
       {/* ——— page wrapper ——— */}
-      <div className="relative min-h-screen flex flex-col bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-gray-100 via-neutral-200 to-neutral-300">
+      <div className="relative min-h-screen flex flex-col bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-gray-200 via-neutral-300 to-neutral-400">
         <Toast message="Your public URL has been copied to clipboard" show={showToast} />
 
-        {/* HEADER */}
+        {/* HEADER with view mode selector */}
         <header className="pt-6 text-center">
           <h1 className="text-2xl sm:text-4xl font-light text-gray-800 drop-shadow-sm" style={{ fontFamily: "'SF Pro Display', 'Helvetica Neue', ui-sans-serif" }}>
             {titleText}
           </h1>
+          <div className="mt-4 flex justify-center gap-2">
+            <button
+              onClick={() => setViewMode('flipbook')}
+              className={`px-3 py-1.5 rounded ${viewMode === 'flipbook' ? 'bg-blue-600 text-white' : 'bg-white/50 hover:bg-white/80'}`}
+            >
+              Flipbook
+            </button>
+            <button
+              onClick={() => setViewMode('scroll')}
+              className={`px-3 py-1.5 rounded ${viewMode === 'scroll' ? 'bg-blue-600 text-white' : 'bg-white/50 hover:bg-white/80'}`}
+            >
+              Scroll
+            </button>
+            {extractedContent && (
+              <button
+                onClick={() => setViewMode('dynamic')}
+                className={`px-3 py-1.5 rounded ${viewMode === 'dynamic' ? 'bg-blue-600 text-white' : 'bg-white/50 hover:bg-white/80'}`}
+              >
+                Dynamic
+              </button>
+            )}
+          </div>
         </header>
 
-        {/* Zoom container - handles the transform */}
+        {/* Zoom container */}
         <div className="flex-grow flex items-center justify-center">
           <div 
             style={{ 
-              transform: `scale(${zoomLevel})`,
+              transform: viewMode === 'flipbook' ? `scale(${zoomLevel})` : 'none',
               transformOrigin: 'center center',
               transition: 'transform 0.2s ease-out'
             }}
           >
-            {/* BOOK (fades in) */}
             <main className="p-4 pb-24 animate-fade-in">
-              <FlipbookViewer
-                s3Path={s3Path}
-                current={current}
-                setCurrent={setCurrent}
-                numPages={numPages}
-                setNumPages={setNumPages}
-                zoomLevel={1}
-                setZoomLevel={setZoomLevel}
-              />
+              {viewMode === 'flipbook' && (
+                <FlipbookViewer
+                  s3Path={s3Path}
+                  current={current}
+                  setCurrent={setCurrent}
+                  numPages={numPages}
+                  setNumPages={setNumPages}
+                  zoomLevel={1}
+                  setZoomLevel={setZoomLevel}
+                />
+              )}
+              {viewMode === 'scroll' && (
+                <ScrollView
+                  s3Path={s3Path}
+                  extractedContent={extractedContent ?? undefined}
+                  numPages={numPages}
+                  setNumPages={setNumPages}
+                  zoomLevel={zoomLevel}
+                />
+              )}
+              {viewMode === 'dynamic' && extractedContent && (
+                <div className="text-center text-gray-500 py-12">
+                  Dynamic view coming soon...
+                </div>
+              )}
             </main>
           </div>
         </div>
@@ -210,8 +271,8 @@ export default function FolioPage() {
         <Toolbar
           current={current}
           numPages={numPages}
-          flipNext={flipNext}
-          flipPrev={flipPrev}
+          flipNext={viewMode === 'flipbook' ? flipNext : undefined}
+          flipPrev={viewMode === 'flipbook' ? flipPrev : undefined}
           zoom={zoom}
           onCopy={handleCopy}
           copied={copied}

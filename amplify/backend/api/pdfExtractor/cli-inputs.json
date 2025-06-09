@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "paths": {
+    "/extract": {
+      "name": "/extract",
+      "lambdaFunction": "pdfExtractor",
+      "permissions": {
+        "setting": "open"
+      },
+      "methods": ["POST"]
+    }
+  }
+}

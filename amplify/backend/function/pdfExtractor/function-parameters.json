@@ -1,0 +1,11 @@
+{
+  "lambdaLayers": [],
+  "environmentVariables": {
+    "PYTHON_VERSION": "3.9"
+  },
+  "permissions": {
+    "storage": {
+      "s3foliostorage": ["read"]
+    }
+  }
+}
