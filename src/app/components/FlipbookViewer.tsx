@@ -19,7 +19,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 const HTMLFlipBook = dynamic(() => import('react-pageflip'), { ssr: false });
-const WINDOW = 1;          // 0 = current-only, 1 = prev/next, 2 = ±2 …
+const WINDOW = 4;          // 0 = current-only, 1 = prev/next, 2 = ±2 …
 
 /* page wrapper – must forward ref for PageFlip */
 // eslint-disable-next-line react/display-name
